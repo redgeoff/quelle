@@ -1,6 +1,7 @@
 'use strict';
 
-var PersistentStream = require('../../scripts/persistent-stream'),
+var quelle = require('../../scripts'),
+  PersistentStream = quelle.PersistentStream,
   sporks = require('sporks'),
   events = require('events'),
   stream = require('stream'),
