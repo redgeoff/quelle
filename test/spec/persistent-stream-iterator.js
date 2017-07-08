@@ -27,4 +27,30 @@ describe('persistent-stream-iterator', function () {
     });
   });
 
+  it('should read items and handle error', function () {
+
+    var items = [
+      { foo: 'bar' },
+      { $error: { code: 'ECONNREFUSED' } },
+      { yar: 'nar' }
+    ];
+
+    var expItems = [
+      { foo: 'bar' },
+      { yar: 'nar' }
+    ];
+
+    var readItems = [];
+
+    var request = new FakedJSONRequest(items);
+
+    var iterator = new PersistentStreamIterator(null, '*', false, request.requestFactory());
+
+    return iterator.each(function (item) {
+      readItems.push(item);
+    }).then(function () {
+      readItems.should.eql(expItems);
+    });
+  });
+
 });

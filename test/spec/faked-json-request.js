@@ -17,19 +17,26 @@ FakedJSONRequest.prototype._writeNextItems = function () {
 
   // Resume from where we left off
   while (this._i < this._items.length) {
-    // // TODO: construct for simulating errors by including an error item
-    // if (item.$error) {
-    //   this._stream.emit('error', ???);
-    // } else {
-    //
-    // }
+    var item = this._items[this._i];
 
-    // Not first item?
-    if (j++ > 0) {
-      this._stream.write(',');
+    // Simulate an error?
+    if (item.$error) {
+
+      var err = new Error();
+      err.code = item.$error.code;
+      this._stream.emit('error', err);
+
+    } else {
+
+      // Not first item?
+      if (j++ > 0) {
+        this._stream.write(',');
+      }
+
+      this._stream.write(JSON.stringify(item));
+
     }
 
-    this._stream.write(JSON.stringify(this._items[this._i]));
     this._i++;
   }
 
