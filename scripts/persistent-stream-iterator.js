@@ -8,7 +8,12 @@ var StreamIterator = require('./stream-iterator'),
 
 var PersistentStreamIterator = function (requestOpts, JSONStreamParseStr, indefinite, request) {
   this._lastRequest = null;
+
+  // Sanity test. TODO: in the future we should create a very basic test API server that serves
+  // JSON to actually test with request. For now, this level of coverage is handled by Slouch.
+  /* istanbul ignore next */
   this._request = request ? request : req;
+
   this._create(requestOpts, JSONStreamParseStr, indefinite);
 };
 

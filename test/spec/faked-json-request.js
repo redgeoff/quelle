@@ -26,6 +26,11 @@ FakedJSONRequest.prototype._writeNextItems = function () {
       err.code = item.$error.code;
       this._stream.emit('error', err);
 
+    } else if (item.$raw) {
+
+      // Raw data
+      this._stream.write(item.$raw);
+
     } else {
 
       // Not first item?
