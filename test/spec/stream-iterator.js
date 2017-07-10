@@ -16,7 +16,8 @@ describe('stream-iterator', function () {
     var readItems = [];
     var iterator = new FakedStreamIterator(expItems);
 
-    return iterator.each(function (item) {
+    return iterator.each(function (jsonItem) {
+      var item = JSON.parse(jsonItem);
       readItems.push(item);
     }).then(function () {
       readItems.should.eql(expItems);
@@ -43,14 +44,15 @@ describe('stream-iterator', function () {
     // TODO: modify sporks.shouldThrow to also accept regex so that can clean up logic below
     var hasError = false;
 
-    return iterator.each(function (item) {
+    return iterator.each(function (jsonItem) {
+      var item = JSON.parse(jsonItem);
       readItems.push(item);
     }).catch(function (err) {
       if (err.code === 'ECONNREFUSED') {
         hasError = true;
       }
     }).then(function () {
-      readItems.should.eql(expItems);
+      readItems.should.eql([expItems[0]]);
       hasError.should.eql(true);
     });
   });
