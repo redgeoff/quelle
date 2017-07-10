@@ -139,7 +139,11 @@ StreamIterator.prototype._end = function () {
 };
 
 StreamIterator.prototype.abort = function () {
-  this._stream.aborted = true;
+  // Does the stream exist? It may not if we have yet to connect
+  if (this._stream) {
+    this._stream.aborted = true;
+  }
+
   this._end();
 };
 

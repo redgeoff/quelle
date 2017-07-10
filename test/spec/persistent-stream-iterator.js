@@ -1,7 +1,8 @@
 'use strict';
 
 var FakedJSONRequest = require('./faked-json-request'),
-  PersistentStreamIterator = require('../../scripts/persistent-stream-iterator');
+  PersistentStreamIterator = require('../../scripts/persistent-stream-iterator'),
+  inherits = require('inherits');
 
 describe('persistent-stream-iterator', function () {
 
@@ -15,9 +16,7 @@ describe('persistent-stream-iterator', function () {
 
   it('should read items', function () {
     var readItems = [];
-
     var request = new FakedJSONRequest(expItems);
-
     var iterator = new PersistentStreamIterator(null, '*', false, request.requestFactory());
 
     return iterator.each(function (item) {
@@ -42,9 +41,7 @@ describe('persistent-stream-iterator', function () {
     ];
 
     var readItems = [];
-
     var request = new FakedJSONRequest(items);
-
     var iterator = new PersistentStreamIterator(null, '*', false, request.requestFactory());
 
     return iterator.each(function (item) {
@@ -67,9 +64,7 @@ describe('persistent-stream-iterator', function () {
     ];
 
     var readItems = [];
-
     var request = new FakedJSONRequest(items);
-
     var iterator = new PersistentStreamIterator(null, '*', false, request.requestFactory());
 
     // TODO: modify sporks.shouldThrow to also accept regex so that can clean up logic below
@@ -85,6 +80,33 @@ describe('persistent-stream-iterator', function () {
       readItems.should.eql([items[0]]);
       hasError.should.eql(true);
     });
+  });
+
+  it('should abort', function () {
+    var readItems = [];
+    var request = new FakedJSONRequest(expItems);
+    var iterator = new PersistentStreamIterator(null, '*', false, request.requestFactory());
+
+    return iterator.each(function (item) {
+      readItems.push(item);
+      iterator.abort();
+    }).then(function () {
+      readItems.should.eql([expItems[0]]);
+    });
+  });
+
+  it('should abort when no request and no stream', function () {
+    var request = new FakedJSONRequest(expItems);
+
+    var FakedPersistentStreamIterator = function () {
+      PersistentStreamIterator.apply(this, arguments);
+    };
+    inherits(FakedPersistentStreamIterator, PersistentStreamIterator);
+    FakedPersistentStreamIterator.prototype._create = function () {};
+
+    var iterator = new FakedPersistentStreamIterator(null, '*', false, request.requestFactory());
+
+    iterator.abort();
   });
 
 });

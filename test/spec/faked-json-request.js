@@ -5,7 +5,9 @@ var MemoryStream = require('memorystream');
 var FakedJSONRequest = function (items) {
   this._items = items;
   this._i = 0;
+
   this._stream = new MemoryStream();
+  this._stream.abort = function () {};
 };
 
 FakedJSONRequest.prototype._writeNextItems = function () {
