@@ -39,4 +39,17 @@ describe('filtered-stream-iterator', function () {
     });
   });
 
+  it('should allow all items when no onItem', function () {
+
+    var readItems = [];
+    var iterator = new FilteredStreamIterator(new FakedStreamIterator(expItems));
+
+    return iterator.each(function (jsonItem) {
+      var item = JSON.parse(jsonItem);
+      readItems.push(item);
+    }).then(function () {
+      readItems.should.eql(expItems);
+    });
+  });
+
 });
