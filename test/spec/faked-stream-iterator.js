@@ -35,7 +35,7 @@ FakedStreamIterator.prototype._emitItems = function () {
 
   // Trigger end after we have finished writing all items. TODO: this is needed, but should it be?
   // Should there be better handling in StreamIterator?
-  self.on('item', function (/* item */) {
+  self.on('item', function ( /* item */ ) {
     if (++j === n) {
       self._stream.end();
     }
