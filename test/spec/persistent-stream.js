@@ -64,6 +64,8 @@ describe('persistent-stream', function () {
       return new stream.Readable();
     });
 
+    persistentStream._reconnect();
+
   });
 
   it('should connect when end of stream and listening indefinitely', function () {
@@ -80,6 +82,21 @@ describe('persistent-stream', function () {
       // Wait for subsequent connect
       return sporks.once(persistentStream, 'connect');
     });
+  });
+
+  it('should not emit error when not reconnecting', function () {
+
+    var err = new Error();
+
+    // We need to listen for the error before generating the error or else our test will exit
+    // prematurely
+    var promise = sporks.once(persistentStream, 'error').then(function (errors) {
+      errors[0].should.eql(err);
+    });
+
+    persistentStream.onError(err);
+
+    return promise;
   });
 
 });
