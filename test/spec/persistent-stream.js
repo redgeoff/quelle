@@ -6,7 +6,8 @@ var quelle = require('../../scripts'),
   events = require('events'),
   stream = require('stream'),
   JSONStream = require('JSONStream'),
-  Promise = require('sporks/scripts/promise');
+  Promise = require('sporks/scripts/promise'),
+  MemoryStream = require('memorystream');
 
 describe('persistent-stream', function () {
 
@@ -53,6 +54,32 @@ describe('persistent-stream', function () {
 
     });
 
+  });
+
+  it('should not connect when aborted', function () {
+
+    persistentStream._aborted = true;
+
+    persistentStream.setStreamFactory(function () {
+      return new stream.Readable();
+    });
+
+  });
+
+  it('should connect when end of stream and listening indefinitely', function () {
+    persistentStream = new PersistentStream(true);
+
+    persistentStream.setStreamFactory(function () {
+      return new MemoryStream();
+    });
+
+    // Wait for first connect
+    return sporks.once(persistentStream, 'connect').then(function () {
+      persistentStream._stream.emit('end');
+
+      // Wait for subsequent connect
+      return sporks.once(persistentStream, 'connect');
+    });
   });
 
 });
