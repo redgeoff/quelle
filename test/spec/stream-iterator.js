@@ -1,6 +1,8 @@
 'use strict';
 
-var FakedStreamIterator = require('./faked-stream-iterator');
+var FakedStreamIterator = require('./faked-stream-iterator'),
+  Throttler = require('squadron').Throttler,
+  sporks = require('sporks');
 
 describe('stream-iterator', function () {
 
@@ -55,6 +57,70 @@ describe('stream-iterator', function () {
       readItems.should.eql([expItems[0]]);
       hasError.should.eql(true);
     });
+  });
+
+  it('should handle when processing item', function () {
+    var err = new Error('some error');
+    var iterator = new FakedStreamIterator(expItems);
+
+    return sporks.shouldThrow(function () {
+      return iterator.each(function () {
+        throw err;
+      });
+    }, err);
+  });
+
+  it('should throttle when reading items', function () {
+    var readItems = [];
+    var iterator = new FakedStreamIterator(expItems);
+    var throttler = new Throttler();
+
+    return iterator.each(function (jsonItem) {
+      var item = JSON.parse(jsonItem);
+      readItems.push(item);
+    }, throttler).then(function () {
+      readItems.should.eql(expItems);
+    });
+  });
+
+  it('should wait for process done when throttling', function () {
+
+    var items = [{
+        foo: 'bar'
+      },
+      {
+        yar: 'nar'
+      },
+      {
+        jar: 'aar'
+      }
+    ];
+
+    var readItems = [];
+    var iterator = new FakedStreamIterator(items);
+    var throttler = new Throttler(1);
+
+    return iterator.each(function (jsonItem) {
+      var item = JSON.parse(jsonItem);
+      readItems.push(item);
+
+      // Delay to allow for time for items to get backlogged
+      return sporks.timeout(100);
+    }, throttler).then(function () {
+      readItems.should.eql(items);
+    });
+  });
+
+  it('should handle an error when throttling', function () {
+    var err = new Error('some error');
+    var iterator = new FakedStreamIterator(expItems);
+    var throttler = new Throttler();
+
+    return sporks.shouldThrow(function () {
+      return iterator.each(function () {
+        throw err;
+      }, throttler);
+    }, err);
   });
 
 });

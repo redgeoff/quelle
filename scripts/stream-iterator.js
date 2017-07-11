@@ -2,7 +2,7 @@
 
 var inherits = require('inherits'),
   events = require('events'),
-  Promise = require('bluebird'),
+  Promise = require('sporks/scripts/promise'),
   sporks = require('sporks');
 
 // NOTE: in order to include stream error handling in StreamIterator, we need to provide a
@@ -93,12 +93,6 @@ StreamIterator.prototype.each = function (onItem, throttler) {
   }
 };
 
-// TODO: deprecate and use non-static member instead?
-StreamIterator.each = function (streamIterator, onItem, throttler) {
-  // Use streamIterator._each so that we can extend the functionality
-  return streamIterator._each(onItem, throttler);
-};
-
 StreamIterator.prototype.setStream = function (stream) {
   this._stream = stream;
   this._listenToStream();
@@ -147,9 +141,10 @@ StreamIterator.prototype.abort = function () {
   this._end();
 };
 
-StreamIterator.prototype.onError = function (err) {
-  this.emit('error', err);
-};
+// TODO: remove? Doesn't appear to be needed
+// StreamIterator.prototype.onError = function (err) {
+//   this.emit('error', err);
+// };
 
 StreamIterator.prototype.toStream = function () {
   var self = this,

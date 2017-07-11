@@ -6,7 +6,7 @@ var quelle = require('../../scripts'),
   events = require('events'),
   stream = require('stream'),
   JSONStream = require('JSONStream'),
-  Promise = require('bluebird');
+  Promise = require('sporks/scripts/promise');
 
 describe('persistent-stream', function () {
 
