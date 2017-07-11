@@ -2,7 +2,7 @@
 
 var StreamIterator = require('./stream-iterator'),
   inherits = require('inherits'),
-  Promise = require('bluebird');
+  Promise = require('sporks/scripts/promise');
 
 // onItem can be a promise factory or just a factory. It should return null when the item should be
 // filtered out.
