@@ -123,4 +123,31 @@ describe('stream-iterator', function () {
     }, err);
   });
 
+  it('should pass error to stream', function () {
+    var err = new Error('some error');
+    var iterator = new FakedStreamIterator(expItems);
+
+    var stream = iterator.toStream();
+
+    var promise = sporks.once(stream, 'error').then(function (errors) {
+      errors[0].should.eql(err);
+    });
+
+    iterator.emit('error', err);
+
+    return promise;
+  });
+
+  it('should pass connect to stream', function () {
+    var iterator = new FakedStreamIterator(expItems);
+
+    var stream = iterator.toStream();
+
+    var promise = sporks.once(stream, 'connect');
+
+    iterator.emit('connect');
+
+    return promise;
+  });
+
 });
