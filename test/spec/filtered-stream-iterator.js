@@ -27,7 +27,8 @@ describe('filtered-stream-iterator', function () {
     ];
 
     var readItems = [];
-    var iterator = new FilteredStreamIterator(new FakedStreamIterator(items), function (jsonItem) {
+    var iterator = new FilteredStreamIterator(new FakedStreamIterator(items), function (
+      jsonItem) {
       var item = JSON.parse(jsonItem);
       return item.ignore ? undefined : item;
     });
