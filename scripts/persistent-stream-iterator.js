@@ -19,7 +19,7 @@ var PersistentStreamIterator = function (requestOpts, JSONStreamParseStr, indefi
 
 inherits(PersistentStreamIterator, StreamIterator);
 
-PersistentStreamIterator.prototype._onceData = function (/* stream, data */) {
+PersistentStreamIterator.prototype._onceData = function ( /* stream, data */ ) {
   // This is a hook for detecting errors, reported as JSON, like authentication errors reported by
   // CouchDB.
 
