@@ -19,6 +19,13 @@ var PersistentStreamIterator = function (requestOpts, JSONStreamParseStr, indefi
 
 inherits(PersistentStreamIterator, StreamIterator);
 
+PersistentStreamIterator.prototype._onceData = function (/* stream, data */) {
+  // This is a hook for detecting errors, reported as JSON, like authentication errors reported by
+  // CouchDB.
+
+  // Do nothing by default
+};
+
 PersistentStreamIterator.prototype._create = function (requestOpts, jsonStreamParseStr,
   indefinite) {
 
@@ -34,6 +41,10 @@ PersistentStreamIterator.prototype._create = function (requestOpts, jsonStreamPa
     return self._lastRequest
       .on('error', function (err) {
         stream.onError(err);
+      })
+      .once('data', function (data) {
+        // Analyze the raw data before it is piped to the JSONStream.
+        self._onceData(stream, data);
       })
       .pipe(JSONStream.parse(jsonStreamParseStr))
       .on('error', function (err) {
