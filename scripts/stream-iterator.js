@@ -10,7 +10,9 @@ var inherits = require('inherits'),
 // result in a circular dependency. This is mainly due to the fact that the sequence of stream
 // errors matters, i.e. you need to listen for errors before doing any piping.
 
-var StreamIterator = function () {};
+var StreamIterator = function () {
+  this._aborted = false;
+};
 
 inherits(StreamIterator, events.EventEmitter);
 
@@ -100,7 +102,12 @@ StreamIterator.prototype.setStream = function (stream) {
 
 StreamIterator.prototype._onData = function (data) {
   this._stream.pause();
-  this._item(data);
+
+  // Don't trigger any items if the iterator has been aborted. This can occur if we get a JSON error
+  // at the beginning of the stream and we don't want to then consider the error as items.
+  if (!this._aborted) {
+    this._item(data);
+  }
 };
 
 StreamIterator.prototype._listenToStream = function () {
@@ -137,6 +144,8 @@ StreamIterator.prototype.abort = function () {
   if (this._stream) {
     this._stream.aborted = true;
   }
+
+  this._aborted = true;
 
   this._end();
 };
