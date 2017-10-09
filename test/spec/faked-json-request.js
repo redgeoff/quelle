@@ -6,8 +6,12 @@ var FakedJSONRequest = function (items) {
   this._items = items;
   this._i = 0;
 
+  this.aborted = false;
   this._stream = new MemoryStream();
-  this._stream.abort = function () {};
+  var self = this;
+  this._stream.abort = function () {
+    self.aborted = true;
+  };
 };
 
 FakedJSONRequest.prototype._writeNextItems = function () {

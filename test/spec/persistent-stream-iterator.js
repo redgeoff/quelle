@@ -91,6 +91,7 @@ describe('persistent-stream-iterator', function () {
       readItems.push(item);
       iterator.abort();
     }).then(function () {
+      request.aborted.should.eql(true);
       readItems.should.eql([expItems[0]]);
     });
   });
