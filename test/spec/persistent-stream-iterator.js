@@ -96,6 +96,12 @@ describe('persistent-stream-iterator', function () {
     });
   });
 
+  it('should handle immediate abort', function () {
+    var request = new FakedJSONRequest(expItems);
+    var iterator = new PersistentStreamIterator(null, '*', false, request.requestFactory());
+    iterator.abort();
+  });
+
   it('should abort when no request and no stream', function () {
     var request = new FakedJSONRequest(expItems);
 
