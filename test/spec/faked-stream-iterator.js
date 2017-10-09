@@ -71,7 +71,7 @@ FakedStreamIterator.prototype._emitItemsOnNextTick = function () {
 // Spy
 FakedStreamIterator.prototype.abort = function () {
   this.aborted = true;
-  return StreamIterator.prototype.abort(this, arguments);
+  return StreamIterator.prototype.abort.apply(this, arguments);
 };
 
 module.exports = FakedStreamIterator;
