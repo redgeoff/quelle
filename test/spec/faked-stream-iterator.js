@@ -11,7 +11,11 @@ var FakedStreamIterator = function (items) {
 
   // Fake stream
   var stream = new MemoryStream();
-  stream.abort = function () {};
+  var self = this;
+  this.aborted = false;
+  stream.abort = function () {
+    self.aborted = true;
+  };
   this.setStream(stream);
 
   // Emit on next tick so that callers have a chance to bind

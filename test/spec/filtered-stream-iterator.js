@@ -55,13 +55,15 @@ describe('filtered-stream-iterator', function () {
 
   it('should abort', function () {
     var readItems = [];
-    var iterator = new FilteredStreamIterator(new FakedStreamIterator(expItems));
+    var fakedIterator = new FakedStreamIterator(expItems);
+    var iterator = new FilteredStreamIterator(fakedIterator);
 
     return iterator.each(function (jsonItem) {
       var item = JSON.parse(jsonItem);
       readItems.push(item);
       iterator.abort();
     }).then(function () {
+      fakedIterator.aborted.should.eql(true);
       readItems.should.eql([expItems[0]]);
     });
   });
