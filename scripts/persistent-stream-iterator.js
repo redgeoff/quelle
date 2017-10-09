@@ -7,6 +7,8 @@ var StreamIterator = require('./stream-iterator'),
   JSONStream = require('JSONStream');
 
 var PersistentStreamIterator = function (requestOpts, JSONStreamParseStr, indefinite, request) {
+  StreamIterator.apply(this, arguments);
+
   this._lastRequest = null;
 
   // Sanity test. TODO: in the future we should create a very basic test API server that serves
@@ -36,21 +38,26 @@ PersistentStreamIterator.prototype._create = function (requestOpts, jsonStreamPa
 
   stream.setStreamFactory(function () {
 
-    self._lastRequest = self._request(requestOpts);
+    // Make sure the iterator wasn't immediately aborted
+    if (!self._aborted) {
 
-    return self._lastRequest
-      .on('error', function (err) {
-        stream.onError(err);
-      })
-      .once('data', function (data) {
-        // Analyze the raw data before it is piped to the JSONStream.
-        self._onceData(stream, data);
-      })
-      .pipe(JSONStream.parse(jsonStreamParseStr))
-      .on('error', function (err) {
-        // Yes, we actually need to listen for the error before and after the pipe
-        stream.onError(err);
-      });
+      self._lastRequest = self._request(requestOpts);
+
+      return self._lastRequest
+        .on('error', function (err) {
+          stream.onError(err);
+        })
+        .once('data', function (data) {
+          // Analyze the raw data before it is piped to the JSONStream.
+          self._onceData(stream, data);
+        })
+        .pipe(JSONStream.parse(jsonStreamParseStr))
+        .on('error', function (err) {
+          // Yes, we actually need to listen for the error before and after the pipe
+          stream.onError(err);
+        });
+
+    }
   });
 
   this.setStream(stream);

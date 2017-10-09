@@ -142,7 +142,8 @@ StreamIterator.prototype._end = function () {
 StreamIterator.prototype.abort = function () {
   // Does the stream exist? It may not if we have yet to connect
   if (this._stream) {
-    this._stream.aborted = true;
+    // Abort any reading that is being done by the stream
+    this._stream.abort();
   }
 
   this._aborted = true;
@@ -183,6 +184,15 @@ StreamIterator.prototype.toStream = function () {
   stream.resume = function () {
     // Pass call to underlying stream so that the flow can be controlled
     self._stream.resume();
+  };
+
+  stream.abort = function () {
+    // Pass call to underlying stream so that the flow can be controlled.
+    //
+    // TODO: why is this needed here when the same call is made in StreamIterator.prototype.abort?
+    self._stream.abort();
+
+    self.abort();
   };
 
   return stream;

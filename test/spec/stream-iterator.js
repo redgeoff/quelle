@@ -59,7 +59,7 @@ describe('stream-iterator', function () {
     });
   });
 
-  it('should handle when processing item', function () {
+  it('should handle error when processing item', function () {
     var err = new Error('some error');
     var iterator = new FakedStreamIterator(expItems);
 
