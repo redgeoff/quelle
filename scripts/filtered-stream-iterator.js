@@ -7,6 +7,8 @@ var StreamIterator = require('./stream-iterator'),
 // onItem can be a promise factory or just a factory. It should return null when the item should be
 // filtered out.
 var FilteredStreamIterator = function (streamIterator, onItem) {
+  StreamIterator.apply(this, arguments);
+
   this._streamIterator = streamIterator;
   this._onItem = onItem;
 

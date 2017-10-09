@@ -20,10 +20,13 @@ PersistentStream.prototype.connect = function () {
   return self._backoff.attempt(function () {
     return self._streamFactory();
   }).then(function (stream) {
-    self._stream = stream;
-    self._listenToStream();
-    self._wrapStream();
-    self.emit('connect');
+    // stream will be falsy if the iterator was aborted before the stream was even created
+    if (stream) {
+      self._stream = stream;
+      self._listenToStream();
+      self._wrapStream();
+      self.emit('connect');
+    }
   });
 };
 

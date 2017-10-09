@@ -64,6 +64,7 @@ describe('filtered-stream-iterator', function () {
       iterator.abort();
     }).then(function () {
       fakedIterator.aborted.should.eql(true);
+      fakedIterator.streamAborted.should.eql(true);
       readItems.should.eql([expItems[0]]);
     });
   });

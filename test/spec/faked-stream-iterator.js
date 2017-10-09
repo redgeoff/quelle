@@ -9,12 +9,14 @@ var FakedStreamIterator = function (items) {
 
   this._items = items;
 
+  this.aborted = false;
+
   // Fake stream
   var stream = new MemoryStream();
   var self = this;
-  this.aborted = false;
+  this.streamAborted = false;
   stream.abort = function () {
-    self.aborted = true;
+    self.streamAborted = true;
   };
   this.setStream(stream);
 
@@ -64,6 +66,12 @@ FakedStreamIterator.prototype._emitItemsOnNextTick = function () {
   setTimeout(function () {
     self._emitItems();
   });
+};
+
+// Spy
+FakedStreamIterator.prototype.abort = function () {
+  this.aborted = true;
+  return StreamIterator.prototype.abort(this, arguments);
 };
 
 module.exports = FakedStreamIterator;
