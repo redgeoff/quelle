@@ -49,7 +49,7 @@ PersistentStreamIterator.prototype._startAnyForceReconnectTimeout = function () 
   var self = this;
   if (self._forceReconnectAfterMilliseconds) {
     self._clearAnyForceReconnectTimeout();
-    setTimeout(function () {
+    self._forceReconnectTimeout = setTimeout(function () {
       self._forceReconnect();
     }, self._forceReconnectAfterMilliseconds);
   }
@@ -105,6 +105,9 @@ PersistentStreamIterator.prototype.abort = function () {
   if (this._stream && this._stream.abort) {
     this._stream.abort();
   }
+
+  // Stop any force reconnect loop
+  this._clearAnyForceReconnectTimeout();
 
   return StreamIterator.prototype.abort.apply(this, arguments);
 };
