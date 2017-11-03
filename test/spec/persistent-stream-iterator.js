@@ -116,4 +116,25 @@ describe('persistent-stream-iterator', function () {
     iterator.abort();
   });
 
+  it('should force reconnect', function () {
+    var readItems = [];
+    var request = new FakedJSONRequest(expItems, 100);
+    var iterator = new PersistentStreamIterator(null, '*', false, request.requestFactory(),
+      1);
+
+    // Spy
+    var forceReconnects = 0;
+    iterator._forceReconnect = function () {
+      forceReconnects++;
+      return PersistentStreamIterator.prototype._forceReconnect.apply(this, arguments);
+    };
+
+    return iterator.each(function (item) {
+      readItems.push(item);
+    }).then(function () {
+      readItems.should.eql(expItems);
+      forceReconnects.should.eql(1);
+    });
+  });
+
 });

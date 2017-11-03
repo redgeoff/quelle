@@ -2,8 +2,9 @@
 
 var MemoryStream = require('memorystream');
 
-var FakedJSONRequest = function (items) {
+var FakedJSONRequest = function (items, delayMs) {
   this._items = items;
+  this._delayMs = delayMs;
   this._i = 0;
 
   this.aborted = false;
@@ -14,47 +15,59 @@ var FakedJSONRequest = function (items) {
   };
 };
 
-FakedJSONRequest.prototype._writeNextItems = function () {
-  var j = 0;
-
+FakedJSONRequest.prototype._writeNextItem = function () {
   if (this._i === 0) {
     this._stream.write('[');
   }
 
-  // Resume from where we left off
-  while (this._i < this._items.length) {
-    var item = this._items[this._i];
+  var item = this._items[this._i];
 
-    // Simulate an error?
-    if (item.$error) {
+  // Simulate an error?
+  if (item.$error) {
 
-      var err = new Error();
-      err.code = item.$error.code;
-      this._stream.emit('error', err);
+    var err = new Error();
+    err.code = item.$error.code;
+    this._stream.emit('error', err);
 
-    } else if (item.$raw) {
+  } else if (item.$raw) {
 
-      // Raw data
-      this._stream.write(item.$raw);
+    // Raw data
+    this._stream.write(item.$raw);
 
-    } else {
+  } else {
 
-      // Not first item?
-      if (j++ > 0) {
-        this._stream.write(',');
-      }
-
-      this._stream.write(JSON.stringify(item));
-
+    // Not first item?
+    if (this._j++ > 0) {
+      this._stream.write(',');
     }
 
-    this._i++;
+    this._stream.write(JSON.stringify(item));
+
   }
+
+  this._i++;
 
   if (this._i === this._items.length) {
     this._stream.write(']');
     this._stream.end();
   }
+};
+
+FakedJSONRequest.prototype._writeNextItemAfterDelay = function () {
+  var self = this;
+
+  // More items?
+  if (self._i < this._items.length) {
+    setTimeout(function () {
+      self._writeNextItem();
+      self._writeNextItemAfterDelay();
+    }, self._delayMs);
+  }
+};
+
+FakedJSONRequest.prototype._writeNextItems = function () {
+  this._j = 0;
+  this._writeNextItemAfterDelay();
 };
 
 FakedJSONRequest.prototype._request = function () {

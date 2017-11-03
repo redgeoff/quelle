@@ -6,15 +6,24 @@ var StreamIterator = require('./stream-iterator'),
   req = require('request'),
   JSONStream = require('JSONStream');
 
-var PersistentStreamIterator = function (requestOpts, JSONStreamParseStr, indefinite, request) {
+var PersistentStreamIterator = function (requestOpts, JSONStreamParseStr, indefinite, request,
+  forceReconnectAfterMilliseconds) {
   StreamIterator.apply(this, arguments);
 
   this._lastRequest = null;
 
-  // Sanity test. TODO: in the future we should create a very basic test API server that serves
-  // JSON to actually test with request. For now, this level of coverage is handled by Slouch.
+  // TODO: in the future we should create a very basic test API server that serves JSON to actually
+  // test with request. For now, this level of coverage is handled by Slouch.
   /* istanbul ignore next */
   this._request = request ? request : req;
+
+  // When continuously listening to a CouchDB stream our stream can just deadlock, even when we
+  // specify a heartbeat=60s. This rarely happens, about once a week, but when it does it can cause
+  // major issues for users. It isn't clear if this issue is at the CouchDB, AWS load balancer or
+  // Slouch layer as there are no errors generated, but we can avoid it by simply reconnecting
+  // periodically.
+  this._forceReconnectTimeout = null;
+  this._forceReconnectAfterMilliseconds = forceReconnectAfterMilliseconds;
 
   this._create(requestOpts, JSONStreamParseStr, indefinite);
 };
@@ -26,6 +35,24 @@ PersistentStreamIterator.prototype._onceData = function ( /* stream, data */ ) {
   // CouchDB.
 
   // Do nothing by default
+};
+
+PersistentStreamIterator.prototype._clearAnyForceReconnectTimeout = function () {
+  clearTimeout(this._forceReconnectTimeout);
+};
+
+PersistentStreamIterator.prototype._forceReconnect = function () {
+  this._lastRequest.abort();
+};
+
+PersistentStreamIterator.prototype._startAnyForceReconnectTimeout = function () {
+  var self = this;
+  if (self._forceReconnectAfterMilliseconds) {
+    self._clearAnyForceReconnectTimeout();
+    setTimeout(function () {
+      self._forceReconnect();
+    }, self._forceReconnectAfterMilliseconds);
+  }
 };
 
 PersistentStreamIterator.prototype._create = function (requestOpts, jsonStreamParseStr,
@@ -48,6 +75,10 @@ PersistentStreamIterator.prototype._create = function (requestOpts, jsonStreamPa
           stream.onError(err);
         })
         .once('data', function (data) {
+          // The abort must be executed after data is read or else our connection will be
+          // permanently aborted
+          self._startAnyForceReconnectTimeout();
+
           // Analyze the raw data before it is piped to the JSONStream.
           self._onceData(stream, data);
         })
