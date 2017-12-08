@@ -104,10 +104,10 @@ PersistentStream.prototype._shouldReconnect = function (err) {
 };
 
 PersistentStream.prototype._reconnect = function () {
-  // TODO: remove? Isn't this already called by backoff.attempt when there is a failure?
+  // Note: this is needed even though backoff.attempt already calls failure()
   this._backoff.failure();
 
-  if (!this._aborted) {
+  if (!this._aborted && !this._backoff.reachedMaxRetries()) {
     this.connect();
   }
 };
