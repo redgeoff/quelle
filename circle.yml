@@ -2,20 +2,24 @@
 # node:
 #  version: 7.10.0
 
+machine:
+  environment:
+    NODE_VERSION: 8.1.4
+
 dependencies:
   pre:
-    - nvm install 7.10.0
-    - nvm use 7.10.0 && npm install -g npm
+    - nvm install $NODE_VERSION
+    - nvm use $NODE_VERSION && npm install -g npm
 
   override:
-    - nvm use 7.10.0 && npm install
+    - nvm use $NODE_VERSION && npm install
 
 test:
   pre:
-    - nvm use 7.10.0 && npm run assert-beautified
-    - nvm use 7.10.0 && npm run jshint
+    - nvm use $NODE_VERSION && npm run assert-beautified
+    - nvm use $NODE_VERSION && npm run jshint
 
   override:
-    - nvm use 7.10.0 && npm run node-full-test
-    - nvm use 7.10.0 && npm run browser-test-phantomjs
-    - nvm use 7.10.0 && npm run browser-coverage-full-test
+    - nvm use $NODE_VERSION && npm run node-full-test
+    - nvm use $NODE_VERSION && npm run browser-test-phantomjs
+    - nvm use $NODE_VERSION && npm run browser-coverage-full-test
