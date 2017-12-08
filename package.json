@@ -1,6 +1,6 @@
 {
   "name": "quelle",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Stream iterators and other stream utils",
   "main": "index.js",
   "repository": {
