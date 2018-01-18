@@ -90,16 +90,23 @@ PersistentStream.prototype._shouldReconnect = function (err) {
     return true;
 
   default:
-    // We sometimes get "Invalid JSON" errors when listening to CouchDB _db_updates feed and the
-    // CouchDB instance is restarted.
-    //
+
     // TODO: JSONStream throws errors like err.message='Error: Unexpected STRING(" }, { ") in state
     // COMMA'. Should we submit a PR that instead generates something like an InvalidJSONError?
-    //
-    // - emfile => occurs randomly when many simultaenous connections
-    // - socket hang up => occurs randomly when many simultaenous connections
-    // - HPE_INVALID_CHUNK_SIZE => occurs randomly when many simultaenous connections
-    return /Invalid JSON|emfile|socket hang up|HPE_INVALID_CHUNK_SIZE/.test(err.message);
+    return new RegExp([
+      // We sometimes get "Invalid JSON" errors when listening to CouchDB _db_updates feed and the
+      // CouchDB instance is restarted.
+      'Invalid JSON',
+
+      // Occurs randomly when many simultaenous connections
+      'emfile',
+      'socket hang up',
+      'HPE_INVALID_CHUNK_SIZE',
+
+      // Occurs randomly even when there is a relatively small amount of data, e.g. "The request
+      // could not be processed in a reasonable amount of time"
+      'timeout'
+    ].join('|'), 'i').test(err.message);
   }
 };
 
