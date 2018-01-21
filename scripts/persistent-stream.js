@@ -101,11 +101,19 @@ PersistentStream.prototype._shouldReconnect = function (err) {
       // Occurs randomly when many simultaenous connections
       'emfile',
       'socket hang up',
-      'HPE_INVALID_CHUNK_SIZE',
+      'HPE_INVALID_CHUNK_SIZE'
 
+      // TODO: It is not clear why CouchDB responds with these timeout errors and immediately
+      // retrying the request often leads to deadlocks when you are continuously listening. In
+      // practice, it is better that your app throws a fatal error and then is restarted, e.g. via
+      // Docker, as this seems to reliably recover from this state. At some point we should analyze
+      // this better and determine where the bug lies and fix it at the root cause:
+      // https://github.com/redgeoff/spiegel/issues/100
+      //
       // Occurs randomly even when there is a relatively small amount of data, e.g. "The request
       // could not be processed in a reasonable amount of time"
-      'timeout'
+      //
+      // 'timeout'
     ].join('|'), 'i').test(err.message);
   }
 };
