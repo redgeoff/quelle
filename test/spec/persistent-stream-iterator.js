@@ -118,9 +118,9 @@ describe('persistent-stream-iterator', function () {
 
   it('should force reconnect', function () {
     var readItems = [];
-    var request = new FakedJSONRequest(expItems, 100);
-    var iterator = new PersistentStreamIterator(null, '*', false, request.requestFactory(),
-      1);
+    var request = new FakedJSONRequest([expItems[0], expItems[0], expItems[0]], 500);
+    var iterator = new PersistentStreamIterator(null, '*', true, request.requestFactory(),
+      300);
 
     // Spy
     var forceReconnects = 0;
@@ -131,9 +131,14 @@ describe('persistent-stream-iterator', function () {
 
     return iterator.each(function (item) {
       readItems.push(item);
+
+      if (readItems.length === 3) {
+        // We have read all the expected items so abort the iterator
+        iterator.abort();
+      }
     }).then(function () {
-      readItems.should.eql(expItems);
-      forceReconnects.should.eql(1);
+      readItems.should.eql([expItems[0], expItems[0], expItems[0]]);
+      forceReconnects.should.eql(2);
     });
   });
 

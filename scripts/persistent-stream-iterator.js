@@ -43,6 +43,13 @@ PersistentStreamIterator.prototype._clearAnyForceReconnectTimeout = function () 
 
 PersistentStreamIterator.prototype._forceReconnect = function () {
   this._lastRequest.abort();
+
+  // If we haven't yet received data then issuing lastRequest.abort() does not lead to an 'end'
+  // event. Therefore, we need to manually emit an 'end' event so that the PersistentStream can
+  // reconnect.
+  if (!this._receivedData) {
+    this._stream._stream.emit('end');
+  }
 };
 
 PersistentStreamIterator.prototype._startAnyForceReconnectTimeout = function () {
@@ -68,16 +75,18 @@ PersistentStreamIterator.prototype._create = function (requestOpts, jsonStreamPa
     // Make sure the iterator wasn't immediately aborted
     if (!self._aborted) {
 
+      self._receivedData = false;
+
       self._lastRequest = self._request(requestOpts);
+
+      self._startAnyForceReconnectTimeout();
 
       return self._lastRequest
         .on('error', function (err) {
           stream.onError(err);
         })
         .once('data', function (data) {
-          // The abort must be executed after data is read or else our connection will be
-          // permanently aborted
-          self._startAnyForceReconnectTimeout();
+          self._receivedData = true;
 
           // Analyze the raw data before it is piped to the JSONStream.
           self._onceData(stream, data, requestOpts);
