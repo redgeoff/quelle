@@ -56,13 +56,13 @@ FakedJSONRequest.prototype._writeNextItem = function () {
 FakedJSONRequest.prototype._writeNextItemAfterDelay = function () {
   var self = this;
 
-  // More items?
-  if (self._i < this._items.length) {
-    setTimeout(function () {
+  setTimeout(function () {
+    // More items?
+    if (self._i < self._items.length) {
       self._writeNextItem();
       self._writeNextItemAfterDelay();
-    }, self._delayMs);
-  }
+    }
+  }, self._delayMs);
 };
 
 FakedJSONRequest.prototype._writeNextItems = function () {
