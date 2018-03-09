@@ -49,7 +49,7 @@
     "beautify-proj": "^1.0.0",
     "chai": "^4.1.0",
     "chai-as-promised": "^6.0.0",
-    "gofur": "1.0.1",
+    "gofur": "1.0.3",
     "istanbul": "^0.4.5",
     "jshint": "^2.9.4",
     "memorystream": "^0.3.1",
