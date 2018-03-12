@@ -27,7 +27,6 @@
     "browser-test": "node_modules/gofur/scripts/browser/test.js -c cache -t test/browser.js",
     "browser-test-firefox": "node_modules/gofur/scripts/browser/test.js -c cache -t test/browser.js -b selenium:firefox",
     "browser-test-chrome": "node_modules/gofur/scripts/browser/test.js -c cache -t test/browser.js -b selenium:chrome",
-    "browser-test-phantomjs": "node_modules/gofur/scripts/browser/test.js -c cache -t test/browser.js -b selenium:phantomjs",
     "browser-coverage-server": "node_modules/gofur/scripts/browser-coverage/serve.js -c cache -t test/browser.js",
     "browser-coverage-test": "node_modules/gofur/scripts/browser-coverage/test.js -c cache -t test/browser.js",
     "browser-coverage-report": "istanbul report --dir cache/coverage/browser --root cache/coverage/browser lcov",
