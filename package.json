@@ -39,7 +39,7 @@
   "dependencies": {
     "JSONStream": "^1.3.5",
     "backoff-promise": "0.0.3",
-    "bluebird": "^3.5.3",
+    "bluebird": "^3.7.2",
     "events": "^3.0.0",
     "inherits": "^2.0.3",
     "sporks": "^1.0.0"
