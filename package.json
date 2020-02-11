@@ -53,7 +53,7 @@
     "jshint": "^2.9.7",
     "memorystream": "^0.3.1",
     "mocha": "^6.0.0",
-    "request": "^2.88.0",
+    "request": "^2.88.2",
     "squadron": "1.0.0"
   },
   "greenkeeper": {
